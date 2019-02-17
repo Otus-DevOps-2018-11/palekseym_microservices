@@ -22,7 +22,8 @@
     "provisioners": [
         {
         "type": "ansible",
-        "playbook_file": "ansible/playbooks/packer_docker.yml"       
+        "playbook_file": "ansible/playbooks/packer_docker.yml",
+        "ansible_env_vars": ["ANSIBLE_ROLES_PATH={{ pwd }}/ansible/roles"]       
         }
     ]
 }

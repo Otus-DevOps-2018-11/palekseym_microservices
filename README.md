@@ -21,6 +21,8 @@ palekseym microservices repository
 
 Файл с переменными
 `docker-monolith/infra/packer/variables-docker.json` 
+Создал роль docker для ansible чтобы установить докер. Роль лежит тут
+`docker-monolith/infra/ansible/roles/docker`
 
 ### Поднятие инстансов с помощью Terraform, их количество
 - Добавил модуль docker-instance в котором описан базовый инстанс. Расположен тут и создает по умолчанию один инстанс (через переменную instance_count можно указать количество)

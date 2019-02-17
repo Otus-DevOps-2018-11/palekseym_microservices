@@ -1,1 +1,6 @@
-- include: docker.yml
+---
+- name: Install Docker
+  hosts: all
+  become: true
+  roles:
+    - docker
