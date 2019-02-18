@@ -1,0 +1,13 @@
+---
+- name: Deploy docker container
+  hosts: docker-instance
+  become: true
+  gather_facts: False
+
+  tasks:
+    - name: Docker container Deploy
+      docker_container:
+        name: reddit
+        image: alexeydoc/otus-reddit:1.0
+        ports:
+          - "9292:9292"
