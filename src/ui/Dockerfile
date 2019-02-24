@@ -1,15 +1,19 @@
-FROM ruby:2.2
-RUN apt-get update \
-    && apt-get install -y ruby-full ruby-dev build-essential \
-    && gem install bundler --no-ri --no-rdoc -v 1.17.3
+FROM ruby:2.2-alpine
 
 ENV APP_HOME /app
-RUN mkdir $APP_HOME
 
+RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
-ADD Gemfile* $APP_HOME/
-RUN bundle install
-ADD . $APP_HOME
+COPY Gemfile* $APP_HOME/
+
+RUN apk add --no-cache --virtual .build-deps make gcc libc-dev \
+&& gem install bundler --no-ri --no-rdoc -v 1.17.3 \
+&& bundle install \
+&& apk del .build-deps
+
+
+
+COPY . $APP_HOME
 
 ENV POST_SERVICE_HOST post
 ENV POST_SERVICE_PORT 5000
