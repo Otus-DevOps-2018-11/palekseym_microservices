@@ -1,6 +1,290 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 15. Docker: сети,docker-compose
+## Основное задание
+- Создал докер хост
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker-machine ls
+NAME          ACTIVE   DRIVER   STATE     URL                        SWARM   DOCKER     ERRORS
+docker-host   *        google   Running   tcp://34.76.164.240:2376           v18.09.2
+```
+</details>
+
+- Запустил контейнер с ситевым драйвером None
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -ti --rm --network none joffotron/docker-net-tools -c ifconfig
+Unable to find image 'joffotron/docker-net-tools:latest' locally
+latest: Pulling from joffotron/docker-net-tools
+3690ec4760f9: Pull complete
+0905b79e95dc: Pull complete
+Digest: sha256:5752abdc4351a75e9daec681c1a6babfec03b317b273fc56f953592e6218d5b5
+Status: Downloaded newer image for joffotron/docker-net-tools:latest
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+```
+</details>
+
+- Запустил контейнер в хост сети
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$  docker run -ti --rm --network host joffotron/docker-net-tools -c ifconfig
+docker0   Link encap:Ethernet  HWaddr 02:42:CF:54:18:B2
+          inet addr:172.17.0.1  Bcast:172.17.255.255  Mask:255.255.0.0
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+ens4      Link encap:Ethernet  HWaddr 42:01:0A:84:00:0E
+          inet addr:10.132.0.14  Bcast:10.132.0.14  Mask:255.255.255.255
+          inet6 addr: fe80::4001:aff:fe84:e%32603/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1460  Metric:1
+          RX packets:4985 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:3353 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:82673514 (78.8 MiB)  TX bytes:363552 (355.0 KiB)
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1%32603/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+```
+</details>
+
+- Запустил несколько одинаковых контейнеров с использованием драйвера сети host. Запустился только один потомучто в таком режиме контейнер получает доступ к сети "напрямую" через сетевой интерфейс, а на сетевом интерфейсе нельзя открыть два раза один и тот же порт.
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker run --network host -d nginx
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+6ae821421a7d: Pull complete
+da4474e5966c: Pull complete
+eb2aec2b9c9f: Pull complete
+Digest: sha256:dd2d0ac3fff2f007d99e033b64854be0941e19a2ad51f174d9240dda20d9f534
+Status: Downloaded newer image for nginx:latest
+250a2f5eb9d96b181647ca7fd90db70ba1eafe9861da6ef06d3b5e4f80464702
+tay@ubuntu:~/repo/palekseym_microservices$ docker run --network host -d nginx
+37e98f7eafc4104476eb14643f0a605c93f4fe779479c8ceec010f1e95795d68
+tay@ubuntu:~/repo/palekseym_microservices$ docker run --network host -d nginx
+a33e2380fb9ebbb2436d4c3b384495bd9de4d952e0ed4d014e30e4fa21a00965
+
+tay@ubuntu:~/repo/palekseym_microservices$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+a33e2380fb9e        nginx               "nginx -g 'daemon of…"   16 seconds ago      Exited (1) 12 seconds ago                       vigorous_engelbart
+37e98f7eafc4        nginx               "nginx -g 'daemon of…"   18 seconds ago      Exited (1) 14 seconds ago                       eloquent_kepler
+250a2f5eb9d9        nginx               "nginx -g 'daemon of…"   22 seconds ago      Up 19 seconds                                   happy_williamson
+```
+</details>
+
+- Рассмотрен сетевые namespace при создании контейнеров с none и host драйверами сети.
+  - При создании контейнеров с none драйвером на хосте создаются по одному namespace
+  <details><summary>Пример</summary>
+  
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices$ docker run --network none -d nginx
+  d78f4e49f36df43c0a30c5c912d8984e996512df8e938d6f17cc57b96721dade
+  tay@ubuntu:~/repo/palekseym_microservices$ docker run --network none -d nginx
+  144a7220595de320cda08831b3d072c30b228b0dcba39c67078975a77faa88d5
+  tay@ubuntu:~/repo/palekseym_microservices$ docker run --network none -d nginx
+  ```
+
+  ```
+  docker-user@docker-host:~$ sudo ip netns
+  8e99adbca4c4
+  52dd372c681d
+  e5c0b42d3d34
+  default
+  ```
+  </details>
+
+  - При создании контейнеров с host драйвером на хосте новых namespace не создается
+  <details><summary>Пример</summary>
+
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices$ docker run --network host -d nginx
+  0922e4ec74c57b0cc4448aa8638f114924d694c354c167d6618ef3080e1ad9a0
+  ```
+
+  ```
+  docker-user@docker-host:~$ sudo ip netns
+  default
+  ```
+  </details>
+
+- Создал brige-сеть reddit
+  <details><summary>Пример</summary>
+
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices$ docker network create reddit --driver bridge
+  cae3eeaa0e6f92d49aa8c97dfca2e14893e85750841d7d786c1aa71f88590260
+  ```
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices$ docker network ls
+  NETWORK ID          NAME                DRIVER              SCOPE
+  1c0de91eda0d        bridge              bridge              local
+  6343b6669502        host                host                local
+  132469d820fb        none                null                local
+  cae3eeaa0e6f        reddit              bridge              local
+  ```
+  </details>
+
+- Поднял приложение состоящее из четырех контейнеров(mongo, post, comment, ui) с прошлого занятия
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=reddit --network-alias=post_db mongo:latest
+(reverse-i-search)`': docker run -d --rm --network=reddit --network-alias^Cost_db mongo:latest
+130 tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=reddit --network-alias=post alexeydoc/post:2.0
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=reddit --network-alias=comment alexeydoc/comment:2.0
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=reddit --network-alias=post alexeydoc/post:2.0
+130 tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=reddit -p 9292:9292 alexeydoc/ui:3.0
+```
+</details>
+
+- Создал две внутрении сети 10.0.1.0/24 и 10.0.2.0/24
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker network create back_net --subnet=10.0.2.0/24
+tay@ubuntu:~/repo/palekseym_microservices$ docker network create front_net --subnet=10.0.1.0/24
+```
+</details>
+
+- Контейнеры post, comment, ui, mongodb запущенны в разных сетях
+<details><summary>Пример</summary>
+
+```
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=front_net --name ui -p 9292:9292 alexeydoc/ui:3.0
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=back_net --name comment alexeydoc/comment:2.0
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=back_net --name post alexeydoc/post:2.0
+tay@ubuntu:~/repo/palekseym_microservices$ docker run -d --rm --network=back_net --name mongo_db --network-alias=post_db --network-alias=comment_db mongo:latest
+tay@ubuntu:~/repo/palekseym_microservices$ docker network connect front_net post
+tay@ubuntu:~/repo/palekseym_microservices$ docker network connect front_net comment
+```
+</details>
+
+- Ознакомился с видом сетевого стека хоста
+  - Nat таблица
+    <details><summary>Пример</summary>
+
+    ```
+    docker-user@docker-host:~$ sudo iptables -nL -t nat
+    Chain PREROUTING (policy ACCEPT)
+    target     prot opt source               destination
+    DOCKER     all  --  0.0.0.0/0            0.0.0.0/0            ADDRTYPE match dst-type LOCAL
+
+    Chain INPUT (policy ACCEPT)
+    target     prot opt source               destination
+
+    Chain OUTPUT (policy ACCEPT)
+    target     prot opt source               destination
+    DOCKER     all  --  0.0.0.0/0           !127.0.0.0/8          ADDRTYPE match dst-type LOCAL
+
+    Chain POSTROUTING (policy ACCEPT)
+    target     prot opt source               destination
+    MASQUERADE  all  --  10.0.1.0/24          0.0.0.0/0
+    MASQUERADE  all  --  10.0.2.0/24          0.0.0.0/0
+    MASQUERADE  all  --  172.18.0.0/16        0.0.0.0/0
+    MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0
+    MASQUERADE  tcp  --  10.0.1.2             10.0.1.2             tcp dpt:9292
+
+    Chain DOCKER (2 references)
+    target     prot opt source               destination
+    RETURN     all  --  0.0.0.0/0            0.0.0.0/0
+    RETURN     all  --  0.0.0.0/0            0.0.0.0/0
+    RETURN     all  --  0.0.0.0/0            0.0.0.0/0
+    RETURN     all  --  0.0.0.0/0            0.0.0.0/0
+    DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:9292 to:10.0.1.2:9292
+    ```
+    </details>
+
+  - Bridge-интерфейсы
+    <details><summary>Пример</summary>
+
+    ```
+    docker-user@docker-host:~$ ifconfig | grep br
+    br-cae3eeaa0e6f Link encap:Ethernet  HWaddr 02:42:7f:76:26:36
+    br-e483e596504c Link encap:Ethernet  HWaddr 02:42:35:f0:e3:ed
+    br-efb362bda50f Link encap:Ethernet  HWaddr 02:42:1b:36:29:5a
+    ```
+    </details>
+
+- Создал параметризированный docker-compose файл, а также файл с переменными .env:
+  - UI_VER -  версия приложения ui
+  - UI_PORT - порт публикации приложения (через этот порт оно доступно для пользователя) 
+  - POST_VER - версия приложения post
+  - COMMENT_VER - версия приложения comment
+  - COMPOSE_PROJECT_NAME - через эту переменную задается базовое имя проекта docker-compose
+
+- Из docker-compose.yml файла запущены контейнеры с разбивкой по разным сетям (алиасам)
+  <details><summary>Пример</summary>
+  
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices/src$ docker-compose up -d
+  Creating network "my_back_net" with the default driver
+  Creating network "my_front_net" with the default driver
+  Creating my_comment_1 ... done
+  Creating my_ui_1      ... done
+  Creating my_post_1    ... done
+  Creating my_post_db_1 ... done
+
+  tay@ubuntu:~/repo/palekseym_microservices/src$ docker ps
+  CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                  NAMES
+  d5560f0ad3a5        mongo:3.2               "docker-entrypoint.s…"   28 seconds ago      Up 25 seconds       27017/tcp              my_post_db_1
+  86f3ec0be48b        alexeydoc/post:2.0      "python3 post_app.py"    28 seconds ago      Up 24 seconds                              my_post_1
+  9721dcfba1b1        alexeydoc/ui:3.0        "puma"                   28 seconds ago      Up 25 seconds       0.0.0.0:80->9292/tcp   my_ui_1
+  0312d6815348        alexeydoc/comment:2.0   "puma"                   29 seconds ago      Up 26 seconds                              my_comment_1
+
+  tay@ubuntu:~/repo/palekseym_microservices/src$ docker network ls
+  NETWORK ID          NAME                DRIVER              SCOPE
+  e98480dd81fa        bridge              bridge              local
+  bf421695dcc8        host                host                local
+  9473f0d45995        my_back_net         bridge              local
+  16cdd7e191ff        my_front_net        bridge              local
+  4bccadb30678        none                null                local
+  tay@ubuntu:~/repo/palekseym_microservices/src$
+  ```
+  </details>
+
+## Задание со *
+- Создал файл docker-compose.override.yml для переопределения настроек из docker-compose.yml чтобы можно было изменять код приложений без сборки образов
+  <details><summary>Пример</summary>
+
+  ```
+  tay@ubuntu:~/repo/palekseym_microservices/src$ docker-compose up -d
+  Creating network "my_front_net" with the default driver
+  Creating network "my_back_net" with the default driver
+  Creating my_post_1    ... done
+  Creating my_ui_1      ... done
+  Creating my_comment_1 ... done
+  Creating my_post_db_1 ... done
+  tay@ubuntu:~/repo/palekseym_microservices/src$ docker ps
+  CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                  NAMES
+  dad4ddc59eb6        mongo:3.2               "docker-entrypoint.s…"   7 seconds ago       Up 3 seconds        27017/tcp              my_post_db_1
+  0b3d4dbbeacc        alexeydoc/comment:2.0   "puma --debug -w 2"      7 seconds ago       Up 3 seconds                               my_comment_1
+  6dbb4efdd968        alexeydoc/ui:3.0        "puma --debug -w 2"      7 seconds ago       Up 3 seconds        0.0.0.0:80->9292/tcp   my_ui_1
+  892b7e8cf252        alexeydoc/post:2.0      "python3 post_app.py"    7 seconds ago       Up 4 seconds                               my_post_1
+  ```
+  </details>
+
 # ДЗ 14. Docker-образы. Микросервисы
 ## Основное задание
 Созданы 3 докер файла для создания котейнеров
