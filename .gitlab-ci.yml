@@ -17,7 +17,7 @@ before_script:
 build_job:
   stage: build
   script:
-    - cat test.txt
+    - cat ../test.txt
     - echo 'Building'
 
 test_unit_job:
