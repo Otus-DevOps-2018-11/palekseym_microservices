@@ -9,6 +9,7 @@ stages:
 
 variables:
  DATABASE_URL: 'mongodb://mongo/user_posts'
+ TEST: "TEST_YES"
 
 before_script:
  - cd reddit
@@ -19,6 +20,8 @@ build_job:
   script:
     - cat ../test.txt
     - echo 'Building'
+    - echo $TEST
+    - export TEST='TEST_NO'
 
 test_unit_job:
  stage: test
@@ -31,6 +34,7 @@ test_integration_job:
   stage: test
   script:
     - echo 'Testing 2'
+    - echo $TEST
 
 deploy_dev_job:
   stage: review
