@@ -16,4 +16,3 @@ vault.key
 .pytest_cache
 env/
 .env
-docker-compose.*
