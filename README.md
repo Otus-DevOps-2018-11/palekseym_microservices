@@ -1,6 +1,41 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 17. Введение в мониторинг. Системы мониторинга.
+
+## Основное задание
+- создал правила ваервола:
+  - prometheus-default
+  - puma-default
+- создал докер хост и запущен контейнер с prometheus
+- доготовил докер образа:
+  - ui
+  - comment
+  - post-py
+  - prometheus
+- создал docker-compouse.yml для старта контейнеров
+- проверил сбор метрики ui_health путем остановки контейнера post
+- докер образа запушил в репозиторий alexeydoc - https://hub.docker.com/u/alexeydoc:
+  - https://cloud.docker.com/repository/docker/alexeydoc/prometheus
+  - https://cloud.docker.com/repository/docker/alexeydoc/post
+  - https://cloud.docker.com/repository/docker/alexeydoc/comment
+  - https://cloud.docker.com/repository/docker/alexeydoc/ui
+
+## Здание со * первое
+- собрал образ для экспартера mongodb на основе репозитория https://github.com/percona/mongodb_exporter
+- образ добавил в репозиторий alexeydoc/mongodb_exporter
+- Dockerfile разместил в monitoring/mongodb_exporter/
+
+## Задание со * второе
+- собрал образ для blackbox мониторинга на основе образа prom/blackbox-exporter
+- собраный образ добавил в репозиторий alexeydoc/blackbox_exporter
+- внес правки в конфигурационный файл prometheus для мониторинга ui, post, comment через backbox_exporter
+
+## Задание со * третье
+- создал makefile для сборки и пуша в репозиторий контейнеров
+  - make build-all
+  - make push-all
+
 # ДЗ 16. Устройство Gitlab CI. Построение процесса непрерывной поставки
 
 ## Основное задание
