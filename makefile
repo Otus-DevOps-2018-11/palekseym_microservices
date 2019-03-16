@@ -33,3 +33,8 @@ build-prometheus:
 	cd monitoring/prometheus;docker build -t $(USER_NAME)/prometheus .
 push-prometheus:
 	docker push $(USER_NAME)/prometheus
+
+build-alertmanager:
+	cd monitoring/alertmanager;docker build -t $(USER_NAME)/alertmanager .
+push-alertmanager:
+	docker push $(USER_NAME)/alertmanager
