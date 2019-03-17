@@ -3,8 +3,17 @@ global:
 
 route:
   receiver: 'slack-notifications'
-
+  routes:
+    - receiver: 'email-notifications'
+    - receiver: 'slack-notifications'
 receivers:
-- name: 'slack-notifications'
-  slack_configs:
-  - channel: '#alexey_puzikov'
+  - name: 'slack-notifications'
+    slack_configs:
+      - channel: '#alexey_puzikov'
+  - name: 'email-notifications'
+    email_configs:
+      - to: '<>'
+        from: '<>'
+        smarthost: '<>'
+        auth_username: '<>'
+        auth_password: ''

@@ -1,8 +1,8 @@
 default: all
 all: build-all
 
-build-all: build-comment build-post build-ui build-blackbox_exporter build-mongodb_exporter build-prometheus
-push-all: push-comment push-post build-ui push-ui push-blackbox_exporter push-mongodb_exporter push-prometheus
+build-all: build-comment build-post build-ui build-blackbox_exporter build-mongodb_exporter build-prometheus build-alertmanager build-telegraf
+push-all: push-comment push-post build-ui push-ui push-blackbox_exporter push-mongodb_exporter push-prometheus push-alertmanager push-telegraf
 
 build-comment:
 	cd src/comment;bash docker_build.sh
@@ -38,3 +38,7 @@ build-alertmanager:
 	cd monitoring/alertmanager;docker build -t $(USER_NAME)/alertmanager .
 push-alertmanager:
 	docker push $(USER_NAME)/alertmanager
+build-telegraf:
+	cd monitoring/telegraf;docker build -t $(USER_NAME)/telegraf .
+push-telegraf:
+	docker push $(USER_NAME)/telegraf

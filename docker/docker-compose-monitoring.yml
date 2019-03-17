@@ -67,6 +67,14 @@ services:
       - '9093:9093'
     networks:
       labs:
+  telegraf:
+    image: ${USERNAME}/telegraf
+    ports:
+      - '9273:9273'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      labs:
 
 volumes:
   prometheus_data:
