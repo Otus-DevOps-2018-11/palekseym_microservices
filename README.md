@@ -1,6 +1,49 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 18. Мониторинг приложения и инфраструктуры.
+
+## Основное задине
+
+- Вынес описание мониторинга в отдельный компос файл docker-compose-monitoring.yml
+- Добавил контейнер cAdvisor и подключил его к для сбора метрик prometheus
+- Добавил контейнер grafana и подключил его к для отображения метрик prometheus
+- Импортировал дашборд для докера в графану
+- Добавил в prometheus сбор метрик с приложения post
+- Добавил в гарфану дашборды отображения графика ошибок и путей при обращении к ui
+- Изменил график для метрики ui_request_count. обернул в функцию rate
+- Добавил график с 95 процентилем по времени обработке запроса
+- Добавил дашборд UI_Service_Monitoring в графане и экспротировал в файл monitoring/grafana/dashboards/UI_Service_Monitoring.json
+- Добавил дашборд Business_Logic_Monitoring в графане и экспортировал в файл monitoring/grafana/dashboards/Business_Logic_Monitoring.json
+- Добавил новый образ докера alertmanager и настроил отправку предупреждений из prometheus через alertmanager в slack
+- Запушил образы докера в репозиторий:
+  - alexeydoc/ui
+  - alexeydoc/comment
+  - alexeydoc/post
+  - alexeydoc/prometheus
+  - alexeydoc/alertmanager
+  - alexeydoc/telegraf
+- Разместил ссылку на докер хаб https://hub.docker.com/u/alexeydoc
+
+## Здание со *
+- Добавил в make файл сборку и пуш образа alertmanager
+- Настроил отдачу метрик докером для prometheus
+<details><summary>/etc/docker/daemon.json</summary>
+
+```
+{
+  "metrics-addr" : "0.0.0.0:9323",
+  "experimental" : true
+}
+```
+</details>
+
+- Добавил дашборд Docker Engine Metrics с сайта графаны https://grafana.com/dashboards/1229
+- Добавил образ telegraf для сбора метрик с докера, подключил его к prometheus и добавил дашборд в графану.
+- Экспортировал дашборд сетевых метрик собираемых телеграфом в файл monitoring/grafana/dashboards/ContainerNetRate.json
+- Добавил алерт на метрику ui_request_latency_seconds_bucket с использованием 95 процентиля
+- Настроил отправку уведомления из alertmanager на почту
+
 # ДЗ 17. Введение в мониторинг. Системы мониторинга.
 
 ## Основное задание
