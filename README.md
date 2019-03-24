@@ -1,6 +1,31 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 19. Логирование и распределенная трассировка
+
+## Основное задание
+- Подготовил образ fluentd
+- Подготовил файл docker-compose-logging.yml для запуска контейнеров:
+  - elasticsearch
+  - kibana
+  - fluentd
+- Для сервиса post настроил docker драйвер логирования на fluentd
+- Для сервиса ui настроил docker драйвер логирования на fluentd
+- В fluentd сделал парсинг структурированых логов для разворачивания json в поля для elasticsearch и парсинг не структурированых логов.
+- В fluentd настроил парсинг не структурированых через grok-шаблоны
+- Добавил в docker-compose-logging.yml zipkin
+
+## Задание со *
+- Добавил grok-шаблон для второго неструктурированго формата
+<details><summary>Grok-шаблон</summary>
+
+```
+<grok>
+  pattern service=%{WORD:service} \| event=%{WORD:event} \| path=%{URIPATH:path} \| request_id=%{GREEDYDATA:request_id} \| remote_addr=%{IPV4:remote_addr} \| method= %{WORD:method} \| response_status=%{NUMBER:response_status}
+</grok>
+```
+</details>
+
 # ДЗ 18. Мониторинг приложения и инфраструктуры.
 
 ## Основное задине
