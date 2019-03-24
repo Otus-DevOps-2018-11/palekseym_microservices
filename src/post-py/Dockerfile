@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . /app
 
 RUN apk update \
-&& apk add --no-cache --virtual .build-deps build-base gcc musl-dev\
+&& apk add --no-cache --virtual .build-deps build-base \
 && pip install --upgrade --no-cache-dir pip \
 && pip install --no-cache-dir -r /app/requirements.txt \
 && apk del .build-deps

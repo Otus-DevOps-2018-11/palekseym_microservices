@@ -26,6 +26,22 @@ palekseym microservices repository
 ```
 </details>
 
+## Задание со ***
+Трассировка в zipkin показала, что задержка в 3 секунды появляется на стороне серфиса post-py при вызове `/post/<id>`.
+в функции обработки вызова find_post найден участок кода, из-за которого у пользователей долго открывается пост. В нем вызывается функция time.sleep которая останавливает выполнение скрипта на указанное количество секунд.
+<details><summary>Проблемное место в post_app.py</summary>
+
+```
+max_resp_time = 3
+```
+...
+```
+stop_time = time.time()  # + 0.3
+resp_time = stop_time - start_time
+median_time = time.sleep(max_resp_time)
+```
+</details>
+
 # ДЗ 18. Мониторинг приложения и инфраструктуры.
 
 ## Основное задине
