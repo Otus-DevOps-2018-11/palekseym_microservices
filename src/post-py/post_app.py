@@ -25,6 +25,7 @@ log = structlog.get_logger()
 
 app = Flask(__name__)
 
+
 class DummyTransport(BaseTransportHandler):
 
     def get_max_payload_bytes(self):
@@ -33,6 +34,7 @@ class DummyTransport(BaseTransportHandler):
     def send(self, encoded_span):
         # The collector does nothing at all
         return None
+
 
 class HttpTransport(BaseTransportHandler):
 
@@ -53,13 +55,14 @@ class HttpTransport(BaseTransportHandler):
                       service='post',
                       traceback=tb)
 
+
 zipkin_transport = HttpTransport() \
     if ZIPKIN_ENABLED else DummyTransport()
 
 if ZIPKIN_ENABLED:
     def zipkin_fill_attrs(headers):
         try:
-            zipkin_attrs=ZipkinAttrs(
+            zipkin_attrs = ZipkinAttrs(
                 trace_id=headers['X-B3-TraceID'],
                 span_id=headers['X-B3-SpanID'],
                 parent_span_id=headers['X-B3-ParentSpanID'],
@@ -67,13 +70,15 @@ if ZIPKIN_ENABLED:
                 is_sampled=headers['X-B3-Sampled'],
             )
         except KeyError:
-            log_event('warning', 'zipkin_fill_headers', "Tracing enabled and some Zipkin HTTP headers are missing")
+            log_event('warning', 'zipkin_fill_headers',
+                      "Tracing enabled and some Zipkin HTTP headers are missing")
             zipkin_attrs = None
             pass
         return zipkin_attrs
 else:
     def zipkin_fill_attrs(headers):
         return None
+
 
 def init(app):
     # application version info
@@ -161,6 +166,30 @@ def vote():
 
 
 # Add new post
+@zipkin_span(service_name='post', span_name='db_find_single_post')
+def find_post(id):
+    start_time = time.time()
+    max_resp_time = 3
+
+    try:
+        post = app.db.find_one({'_id': ObjectId(id)})
+    except Exception as e:
+        log_event('error', 'post_find',
+                  "Failed to find the post. Reason: {}".format(str(e)),
+                  request.values)
+        abort(500)
+    else:
+        stop_time = time.time()  # + 0.3
+        resp_time = stop_time - start_time
+        median_time = time.sleep(max_resp_time)
+        app.post_read_db_seconds.observe(resp_time)
+        log_event('info', 'post_find',
+                  'Successfully found the post information',
+                  {'post_id': id})
+        return dumps(post)
+
+
+# Retrieve information about a post
 @app.route('/add_post', methods=['POST'])
 def add_post():
     try:
@@ -186,28 +215,15 @@ def add_post():
         return 'OK'
 
 
-# Retrieve information about a post
-@zipkin_span(service_name='post', span_name='db_find_single_post')
-def find_post(id):
-    start_time = time.time()
-    try:
-        post = app.db.find_one({'_id': ObjectId(id)})
-    except Exception as e:
-        log_event('error', 'post_find',
-                  "Failed to find the post. Reason: {}".format(str(e)),
-                  request.values)
-        abort(500)
-    else:
-        stop_time = time.time()  # + 0.3
-        resp_time = stop_time - start_time
-        app.post_read_db_seconds.observe(resp_time)
-        log_event('info', 'post_find',
-                  'Successfully found the post information',
-                  {'post_id': id})
-        return dumps(post)
-
-
 # Find a post
+@app.route('/healthcheck')
+def healthcheck():
+    return http_healthcheck_handler(POST_DATABASE_HOST,
+                                    POST_DATABASE_PORT,
+                                    app.version)
+
+
+# Health check endpoint
 @app.route('/post/<id>')
 def get_post(id):
     with zipkin_span(
@@ -220,14 +236,6 @@ def get_post(id):
     ):
         post = find_post(id)
     return post
-
-
-# Health check endpoint
-@app.route('/healthcheck')
-def healthcheck():
-    return http_healthcheck_handler(POST_DATABASE_HOST,
-                                    POST_DATABASE_PORT,
-                                    app.version)
 
 
 # Log every request
@@ -267,11 +275,11 @@ if __name__ == "__main__":
     logg.disabled = True   # disable default logger
     # define log structure
     structlog.configure(processors=[
-         structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-         structlog.stdlib.add_log_level,
-         # to see indented logs in the terminal, uncomment the line below
-         # structlog.processors.JSONRenderer(indent=2, sort_keys=True)
-         # and comment out the one below
-         structlog.processors.JSONRenderer(sort_keys=True)
-     ])
+        structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
+        structlog.stdlib.add_log_level,
+        # to see indented logs in the terminal, uncomment the line below
+        # structlog.processors.JSONRenderer(indent=2, sort_keys=True)
+        # and comment out the one below
+        structlog.processors.JSONRenderer(sort_keys=True)
+    ])
     app.run(host='0.0.0.0', debug=True)
