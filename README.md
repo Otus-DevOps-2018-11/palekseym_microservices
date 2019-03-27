@@ -1,6 +1,15 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 20. Введение в Kubernetes
+
+- Создал манифесты для сервисов:
+  - mongo-deployment.yml
+  - post-deployment.yml
+  - ui-deployment.yml
+- Прошел ручную установку https://github.com/kelseyhightower/kubernetes-the-hard-way
+
+```
 # ДЗ 19. Логирование и распределенная трассировка
 
 ## Основное задание
