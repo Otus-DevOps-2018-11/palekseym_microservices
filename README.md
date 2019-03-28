@@ -7,6 +7,7 @@ palekseym microservices repository
   - mongo-deployment.yml
   - post-deployment.yml
   - ui-deployment.yml
+  - comment-deployment.yml
 - Прошел ручную установку https://github.com/kelseyhightower/kubernetes-the-hard-way
 
 ```
