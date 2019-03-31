@@ -1,6 +1,118 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 21. Kubernetes. Запуск кластера и приложения. Модель безопасности.
+
+# Основное задание
+- Установил minikube и развернул kubernetes локально
+- Создал yml файл для деплоймента:
+  - comment-deployment.yml
+  - mongo-deployment.yml
+  - post-deployment.yml
+  - ui-deployment.yml
+- Создал файлы для создания объектов сервис для:
+  - comment-service.yml
+  - mongodb-service.yml
+  - post-service.yml
+  - comment-mongodb-service.yml
+  - post-mongodb-service.yml
+  - ui-service.yml
+- Создал отдельный пространство
+  - dev-namespace.yml
+- Создал кластер в GKE и развернул в нем приложение
+  - <details><summary>Скрин</summary>
+
+    ![reddit](https://i.imgur.com/A4siDNt.png)
+    </details>
+
+- Включил dashboard в GKE
+  - <details><summary>Скрин</summary>
+
+    ![reddit](https://i.imgur.com/6CCbVwW.png)
+    </details>
+    
+# Задание со *
+- Развенрнул кластер с использованием terraform
+<details><summary>kubernetes/terraform/main.tf</summary>
+
+```
+provider "google" {
+  version = "1.20.0"
+  project = "${var.project}"
+  region  = "${var.region}"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "my-gke-cluster"
+  zone               = "${var.zone}"
+  initial_node_count = 2
+
+  node_config {
+    disk_size_gb = 20
+    machine_type = "g1-small"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
+  }
+
+  addons_config {
+    kubernetes_dashboard {
+      disabled = false
+    }
+  }
+
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+
+  provisioner "local-exec" {
+    command = "gcloud container clusters get-credentials ${google_container_cluster.primary.id} --zone ${var.zone} --project ${var.project}"
+  }
+}
+
+resource "google_compute_firewall" "firewall_kuber" {
+  name    = "default-allow-kubernode"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["30000-33000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+```
+</details>
+
+- Создал YAML манифест для создания сущностей необходимых при доступе к dashboard
+<details><summary>kubernetes/reddit/dashboard-bindingrol.yml</summary>
+
+```yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: ClusterRoleBinding
+  metadata:
+    name: kubernetes-dashboard
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-admin
+  subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kube-system
+
+```
+</details>
+
 # ДЗ 20. Введение в Kubernetes
 
 - Создал манифесты для сервисов:
@@ -10,7 +122,7 @@ palekseym microservices repository
   - comment-deployment.yml
 - Прошел ручную установку https://github.com/kelseyhightower/kubernetes-the-hard-way
 
-```
+
 # ДЗ 19. Логирование и распределенная трассировка
 
 ## Основное задание
