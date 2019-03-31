@@ -3,7 +3,7 @@ palekseym microservices repository
 
 # ДЗ 21. Kubernetes. Запуск кластера и приложения. Модель безопасности.
 
-# Основное задание
+## Основное задание
 - Установил minikube и развернул kubernetes локально
 - Создал yml файл для деплоймента:
   - comment-deployment.yml
@@ -31,7 +31,7 @@ palekseym microservices repository
     ![reddit](https://i.imgur.com/6CCbVwW.png)
     </details>
     
-# Задание со *
+## Задание со *
 - Развенрнул кластер с использованием terraform
 <details><summary>kubernetes/terraform/main.tf</summary>
 
