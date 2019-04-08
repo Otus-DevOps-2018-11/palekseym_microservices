@@ -1,6 +1,26 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 22.Kubernetes. Networks ,Storages
+
+## Основное задание
+- Пробросил сервис ui наружу чезер LoadBalancer
+- Пробросил сервис ui через Ingress
+- Сгенерировал ssl сертификат
+- Настроил ui-ingress на прием https трафика
+- Вкллючил network-policy для кластера standard-cluster-1
+- Создал политику mongo-network-policy.yml в которой к mongo:
+  - разрешены подключения от сервиса comment
+  - разрешены подключения от сервиса post
+- Создал диск для подключения к поду в GCP и подключил к сервису mongo
+- Создал манифест запроса на диск mongo-claim.yml
+- Создал манифест для быстрого хранилища ssd storage-fast.yml
+- Создал манифест динамичесткого запроса диска mongo-claim-dynamic.yml
+
+## Задание со *
+- Создал манифест для создания сикрета tls `ui-tls.yml`
+
+
 # ДЗ 21. Kubernetes. Запуск кластера и приложения. Модель безопасности.
 
 ## Основное задание
