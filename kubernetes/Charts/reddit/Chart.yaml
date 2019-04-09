@@ -1,0 +1,7 @@
+name: reddit
+version: 1.0.0
+description: OTUS sample reddit application
+maintainers:
+  - name: Alexey Puzikov
+    email: p.aleksey.m@gmail.com
+appVersion: 1.0

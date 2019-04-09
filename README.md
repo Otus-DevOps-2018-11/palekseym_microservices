@@ -1,6 +1,22 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 23. CI/CD в Kubernetes
+
+## Основное задание
+- Установил helm клиент
+- Создал манифест tiller.yml для pod с хэльмом 
+- Подготовил Chart для ui `Chart/ui` сервиса и раскатил его
+- Шаблонизировал сервисы: ui, post, comment:
+  - kubernetes/Charts/ui
+  - kubernetes/Charts/post
+  - kubernetes/Charts/comment
+- Создал единый Chart `kubernetes/Charts/reddit` объединящий:
+  - kubernetes/Charts/ui
+  - kubernetes/Charts/post
+  - kubernetes/Charts/comment  
+
+
 # ДЗ 22.Kubernetes. Networks ,Storages
 
 ## Основное задание
