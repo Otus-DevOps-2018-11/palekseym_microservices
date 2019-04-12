@@ -1,6 +1,76 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 23. CI/CD в Kubernetes
+
+## Основное задание
+- Установил helm клиент
+- Создал манифест tiller.yml для pod с хэльмом 
+- Подготовил Chart для ui `Chart/ui` сервиса и раскатил его
+- Шаблонизировал сервисы: ui, post, comment:
+  - kubernetes/Charts/ui
+  - kubernetes/Charts/post
+  - kubernetes/Charts/comment
+- Создал единый Chart `kubernetes/Charts/reddit` объединящий:
+  - kubernetes/Charts/ui
+  - kubernetes/Charts/post
+  - kubernetes/Charts/comment  
+- Скачал из репозитория chart для gitlab и настроил его `kubernetes/Charts/gitlab-omnibus`
+- Создал в gitlab проекты:
+  - comment
+  - post
+  - ui
+  - reddit-deploy
+- Создал репозитории в gitlab:
+  - comment
+  - post
+  - ui
+  - reddit-deploy
+
+- Добавли пайплайны для gitlab c созданием и удалением динамического окружения
+  - `src/comment/.gitlab-ci.yml`
+  - `src/post-py/.gitlab-ci.yml`
+  - `src/ui/.gitlab-ci.yml`
+  - `kubernetes/Charts/.gitlab-ci.yml`
+
+## Задание со *
+- Добавил тригер на запуск пайплайна reddit-deploy
+<details><summary>Тригер</summary>
+
+![reddit](https://i.imgur.com/jXQmZXI.png)
+</details>
+
+- Добавил в файлы .gitlab-ci.yml проектов ui, post, comment вызов тригера после релиза в мастер.
+Токен нужо указывать в переменных группы $CI_DEP_PROD_TOKEN
+ <details><summary>Создание переменной</summary>
+
+![reddit](https://i.imgur.com/OgWiQb8.png)
+</details>
+
+```
+image: alpine:latest
+
+stages:
+  - build
+  - test
+  - review
+  - release
+  - deploy_stage
+  - cleanup
+
+.......
+
+deploy_stage:
+  stage: deploy_stage
+  script:
+    - apk add curl
+    - "curl --request POST --form token=$CI_DEP_PROD_TOKEN --form ref=master http://gitlab-gitlab/api/v4/projects/4/trigger/pipeline"
+  only:
+    refs:
+      - master
+    kubernetes: active
+```
+
 # ДЗ 22.Kubernetes. Networks ,Storages
 
 ## Основное задание
