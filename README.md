@@ -1,6 +1,39 @@
 # palekseym_microservices
 palekseym microservices repository
 
+# ДЗ 24. Kubernetes. Мониторинг и логирование
+
+- Создал кластер kubernetes
+- Создал ingress-контроллер nginx
+- Запустил prometheus с помошью helm
+- Настроил в prometheus сбор с сервиса kube-state-metircs и включены поды node-exporter
+- Запустил приложения:
+  - reddit-test
+  - production
+  - staging
+- Добавил лейблы, присвоенные подам, к мониторингу
+- Добавил метрики приложений
+- Добавил отдельны задания в prometheus для приложений:
+  - post-endpoints
+  - comment-endpoints
+  - ui-endpoints
+- Установил Grafana с помощью helm
+- Импортировал башбоард для k8s
+- Шабланизировал башборды отражающие параметры работы приложений
+- Импортировал дашбоард https://grafana.com/dashboards/741
+- Сохранил добавленные и измененные дашборды в:
+  - monitoring/grafana/dashboards/UI_Service_Monitoring.json
+  - monitoring/grafana/dashboards/Kubernetes_Deployment_metrics.json
+  - monitoring/grafana/dashboards/Kubernetes_cluster_monitoring.json
+  - monitoring/grafana/dashboards/Business_Logic_Monitoring.json
+- Развернул стэк EFK, настройки расположил в:
+  - kubernetes/efk/es-pvc.yaml
+  - kubernetes/efk/es-service.yaml
+  - kubernetes/efk/es-statefulSet.yaml
+  - kubernetes/efk/fluentd-configmap.yaml
+  - kubernetes/efk/fluentd-configmap.yaml
+  - kubernetes/efk/fluentd-ds.yaml
+
 # ДЗ 23. CI/CD в Kubernetes
 
 ## Основное задание
